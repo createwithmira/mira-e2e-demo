@@ -1,0 +1,12 @@
+[programs.localnet]
+simple_counter = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkgSQcfM9F5eX"
+
+[provider]
+cluster = "mainnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "cargo test-bpf"
+
+[workspace]
+members = ["programs/simple_counter"]
