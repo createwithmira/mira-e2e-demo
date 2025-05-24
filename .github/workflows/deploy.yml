@@ -22,5 +22,5 @@ jobs:
             -w /project \
             -e ANCHOR_WALLET=/project/wallet.json \
             -e SOLANA_URL=https://api.devnet.solana.com \
-            projectserum/build:v0.29.0 \
+            coralxyz/anchor:latest \
             bash -c "anchor build && solana program deploy target/deploy/simple_counter.so --url devnet"
