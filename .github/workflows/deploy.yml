@@ -21,17 +21,17 @@ jobs:
       - name: Install Solana CLI
         run: |
           sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-          export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
-          solana --version
+          echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$PATH" >> $GITHUB_ENV
 
       - name: Install Anchor
         run: |
+          source $GITHUB_ENV
           cargo install --git https://github.com/coral-xyz/anchor --tag v0.29.0 anchor-cli --locked
           anchor --version
 
       - name: Build Anchor project
         run: |
-          export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+          source $GITHUB_ENV
           anchor build
 
       - name: Deploy to Devnet
@@ -39,5 +39,8 @@ jobs:
           SOLANA_WALLET: ${{ secrets.SOLANA_WALLET }}
         run: |
           echo "$SOLANA_WALLET" > ~/.config/solana/id.json
-          export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
-          solana program deploy target/deploy/simple_counter.so --url devnet
+          source $GITHUB_ENV
+          solana config set --keypair ~/.config/solana/id.json
+          solana config set --url devnet
+          solana address
+          solana program deploy target/deploy/simple_counter.so
