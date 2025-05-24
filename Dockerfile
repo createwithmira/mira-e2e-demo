@@ -11,7 +11,12 @@ RUN apt-get update && apt-get install -y \
 RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 ENV PATH="/root/.local/share/solana/install/active_release/bin:${PATH}"
 
-RUN rustup target add bpfel-unknown-unknown
+# Install Solana BPF toolchain manually
+RUN apt-get install -y xz-utils && \
+    curl -sSfL https://github.com/solana-labs/solana/releases/latest/download/solana-release-x86_64-unknown-linux-gnu.tar.bz2 \
+    | tar -xj && \
+    mv solana-release*/bin/* /usr/local/bin/
+
 RUN cargo install --git https://github.com/coral-xyz/anchor --tag v0.29.0 anchor-cli --locked
 
 WORKDIR /app
