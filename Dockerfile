@@ -24,4 +24,5 @@ COPY . .
 
 RUN echo "$WALLET_JSON_BASE64" | base64 -d > /app/wallet.json
 
-CMD ["/bin/bash", "-c", "anchor build && solana config set --keypair wallet.json && solana config set --url devnet && solana program deploy target/deploy/simple_counter.so"]
+CMD ["/bin/bash", "-c", "anchor build && solana config set --keypair wallet.json && solana config set --url devnet && solana program deploy target/deploy/simple_counter.so && tail -f /dev/null"]
+
