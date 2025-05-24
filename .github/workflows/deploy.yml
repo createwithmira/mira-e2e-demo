@@ -7,6 +7,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: read
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -22,5 +26,5 @@ jobs:
             -w /project \
             -e ANCHOR_WALLET=/project/wallet.json \
             -e SOLANA_URL=https://api.devnet.solana.com \
-            coralxyz/anchor:latest \
+            ghcr.io/coral-xyz/anchor:latest \
             bash -c "anchor build && solana program deploy target/deploy/simple_counter.so --url devnet"
