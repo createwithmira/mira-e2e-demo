@@ -1,0 +1,43 @@
+name: Deploy to Solana
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+          override: true
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+          export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+          solana --version
+
+      - name: Install Anchor
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor --tag v0.29.0 anchor-cli --locked
+          anchor --version
+
+      - name: Build Anchor project
+        run: |
+          export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+          anchor build
+
+      - name: Deploy to Devnet
+        env:
+          SOLANA_WALLET: ${{ secrets.SOLANA_WALLET }}
+        run: |
+          echo "$SOLANA_WALLET" > ~/.config/solana/id.json
+          export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+          solana program deploy target/deploy/simple_counter.so --url devnet
