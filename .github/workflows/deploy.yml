@@ -11,27 +11,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Rust
+      - name: Install Rust 1.70
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           components: rustfmt
           override: true
 
       - name: Install Solana CLI
         run: |
           sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-          echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$PATH" >> $GITHUB_ENV
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
       - name: Install Anchor
         run: |
-          source $GITHUB_ENV
           cargo install --git https://github.com/coral-xyz/anchor --tag v0.29.0 anchor-cli --locked
           anchor --version
 
       - name: Build Anchor project
         run: |
-          source $GITHUB_ENV
           anchor build
 
       - name: Deploy to Devnet
@@ -39,8 +37,6 @@ jobs:
           SOLANA_WALLET: ${{ secrets.SOLANA_WALLET }}
         run: |
           echo "$SOLANA_WALLET" > ~/.config/solana/id.json
-          source $GITHUB_ENV
           solana config set --keypair ~/.config/solana/id.json
           solana config set --url devnet
-          solana address
           solana program deploy target/deploy/simple_counter.so
