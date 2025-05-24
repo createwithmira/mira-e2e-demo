@@ -1,55 +1,26 @@
-name: Deploy to Solana
+name: Deploy to Solana (Docker)
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install Rust 1.69
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.69.0
-          components: rustfmt
-          override: true
-
-      - name: Cache Cargo
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Install Solana CLI
-        run: |
-          sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
-
-      - name: Add Solana build target
-        run: |
-          rustup target add bpfel-unknown-unknown
-
-      - name: Install Anchor
-        run: |
-          cargo install --git https://github.com/coral-xyz/anchor --tag v0.29.0 anchor-cli --locked
-          anchor --version
-
-      - name: Build Anchor project
-        run: |
-          anchor build
-
-      - name: Deploy to Devnet
+      - name: Run Anchor in Docker
         env:
           SOLANA_WALLET: ${{ secrets.SOLANA_WALLET }}
         run: |
-          echo "$SOLANA_WALLET" > ~/.config/solana/id.json
-          solana config set --keypair ~/.config/solana/id.json
-          solana config set --url devnet
-          solana program deploy target/deploy/simple_counter.so
+          echo "$SOLANA_WALLET" > wallet.json
+
+          docker run --rm \
+            -v ${{ github.workspace }}:/project \
+            -w /project \
+            -e ANCHOR_WALLET=/project/wallet.json \
+            -e SOLANA_URL=https://api.devnet.solana.com \
+            projectserum/build:v0.29.0 \
+            bash -c "anchor build && solana program deploy target/deploy/simple_counter.so --url devnet"
