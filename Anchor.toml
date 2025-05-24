@@ -2,7 +2,7 @@
 simple_counter = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkgSQcfM9F5eX"
 
 [provider]
-cluster = "mainnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
